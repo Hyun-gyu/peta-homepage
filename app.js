@@ -95,6 +95,10 @@ function renderSolutions() {
             <div class="mini-label">구축 방식</div>
             <ul>${listMarkup(solution.implementation)}</ul>
           </div>
+          <div class="solution-sectors">
+            <div class="mini-label">적용 산업</div>
+            <p>${solution.sectors}</p>
+          </div>
         </article>
       `
     )
@@ -121,22 +125,6 @@ function renderProjects() {
               <ul>${listMarkup(project.kpis)}</ul>
             </div>
           </div>
-        </article>
-      `
-    )
-    .join("");
-}
-
-function renderIndustries() {
-  const icons = ["factory", "tool", "lock"];
-  qs("#industry-grid").innerHTML = content.industries
-    .map(
-      (industry, index) => `
-        <article class="industry-card">
-          <div class="icon-box">${iconMarkup(icons[index])}</div>
-          <h3>${industry.title}</h3>
-          <p>${industry.description}</p>
-          <div class="tag-row">${tagMarkup(industry.items)}</div>
         </article>
       `
     )
@@ -274,7 +262,6 @@ renderTrust();
 renderPainPoints();
 renderSolutions();
 renderProjects();
-renderIndustries();
 renderProcess();
 renderWhy();
 renderContact();
