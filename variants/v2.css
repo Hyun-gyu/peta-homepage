@@ -1,0 +1,67 @@
+/* v2 structural overlay — loaded after styles.css + modern.css */
+
+/* Why is now 3 cards, not 5.
+   Scoped above 1120px only — below that styles.css already collapses the
+   grid to 2 columns and then to 1, and an unscoped override would force
+   three 101px columns onto a phone. */
+@media (min-width: 1121px) {
+  .why-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.why-card {
+  min-height: 0;
+  padding: 28px;
+}
+
+/* Solution card gains an "적용 산업" footer.
+   It sits in the existing 1fr trailing row, so the fixed row heights that
+   keep 적용 대상 / 기대 효과 / 구축 방식 aligned across the three cards
+   are untouched. */
+.solution-sectors {
+  align-self: end;
+  width: 100%;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.solution-sectors .mini-label {
+  margin: 0 0 6px;
+}
+
+.solution-sectors p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  word-break: keep-all;
+}
+
+/* Hero: the capability triad is already stated by the h1 and by the
+   carousel controls in the dashboard, so the badge row is gone. Collapse
+   it rather than leaving an empty flex row holding vertical space. */
+.hero-badges:empty {
+  display: none;
+}
+
+.hero-actions {
+  margin-bottom: 0;
+}
+
+/* Pain cards carry longer, more concrete copy now — give the text room
+   and let the three cards settle to a common height. */
+.pain-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.pain-card p {
+  margin-bottom: 20px;
+}
+
+.pain-card ul {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}

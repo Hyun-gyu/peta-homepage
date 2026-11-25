@@ -28,32 +28,31 @@ function tagMarkup(items) {
   return items.map((item) => `<span>${item}</span>`).join("");
 }
 
+function phraseMarkup(phrases, fallbackText) {
+  const phraseList = Array.isArray(phrases) && phrases.length ? phrases : [fallbackText];
+  return phraseList.map((phrase) => `<span class="keep-phrase">${phrase}</span>`).join(" ");
+}
+
 function renderHeader() {
   qs("#site-nav").innerHTML = content.nav.map((item) => `<a href="${item.href}">${item.label}</a>`).join("");
 }
 
 function renderHero() {
   qs("#hero-eyebrow").textContent = content.hero.eyebrow;
-  qs("#hero-title").textContent = content.hero.title;
-  qs("#hero-subtitle").textContent = content.hero.subtitle;
+  qs("#hero-title").innerHTML = phraseMarkup(content.hero.titlePhrases, content.hero.title);
+  qs("#hero-subtitle").innerHTML = phraseMarkup(content.hero.subtitlePhrases, content.hero.subtitle);
   qs("#primary-cta").textContent = content.hero.primaryCta;
   qs("#secondary-cta").textContent = content.hero.secondaryCta;
   qs("#hero-badges").innerHTML = tagMarkup(content.hero.badges);
+  qs(".button-primary").setAttribute("href", content.hero.primaryHref || "#contact");
+  qs(".button-secondary").setAttribute("href", content.hero.secondaryHref || "#solutions");
 }
 
 function renderTrust() {
-  qs("#trust-headline").textContent = content.trust.headline;
-  qs("#trust-description").textContent = content.trust.description;
-  qs("#trust-stats").innerHTML = content.trust.stats
-    .map(
-      (stat) => `
-        <article class="stat-cell">
-          <strong>${stat.value}</strong>
-          <span>${stat.label}</span>
-        </article>
-      `
-    )
-    .join("");
+  qs("#trust-headline").innerHTML = phraseMarkup(content.trust.headlinePhrases, content.trust.headline);
+  qs("#trust-description").innerHTML = phraseMarkup(content.trust.descriptionPhrases, content.trust.description);
+  qs("#trust-action").textContent = content.trust.cta;
+  qs("#trust-action").setAttribute("href", content.trust.href || "#projects");
 }
 
 function renderPainPoints() {
@@ -83,12 +82,19 @@ function renderSolutions() {
             <span>${solution.eyebrow}</span>
           </div>
           <h3>${solution.title}</h3>
-          <p>${solution.description}</p>
-          <div class="mini-label">적용 대상</div>
-          <div class="tag-row">${tagMarkup(solution.targets)}</div>
-          <div class="mini-label">고객 가치</div>
-          <ul>${listMarkup(solution.values)}</ul>
-          <button type="button" class="text-link" aria-label="${solution.title} 자세히 보기">적용 방식 보기</button>
+          <p class="solution-summary">${solution.summary}</p>
+          <div class="solution-block solution-target-block">
+            <div class="mini-label">적용 대상</div>
+            <div class="tag-row solution-target-tags">${tagMarkup(solution.target)}</div>
+          </div>
+          <div class="solution-block">
+            <div class="mini-label">기대 효과</div>
+            <ul>${listMarkup(solution.value)}</ul>
+          </div>
+          <div class="solution-block">
+            <div class="mini-label">구축 방식</div>
+            <ul>${listMarkup(solution.implementation)}</ul>
+          </div>
         </article>
       `
     )
@@ -100,16 +106,18 @@ function renderProjects() {
     .map(
       (project) => `
         <article class="project-card">
+          <div class="project-category">${project.category}</div>
           <div class="project-status">${project.status}</div>
           <h3>${project.title}</h3>
-          <p>${project.description}</p>
+          <p>${project.problem}</p>
+          <p class="project-role">${project.role}</p>
           <div class="project-columns">
             <div>
               <div class="mini-label">주요 기술</div>
-              <ul>${listMarkup(project.tech)}</ul>
+              <ul>${listMarkup(project.technologies)}</ul>
             </div>
             <div>
-              <div class="mini-label">목표 KPI</div>
+              <div class="mini-label">${project.kpiLabel || "목표 KPI"}</div>
               <ul>${listMarkup(project.kpis)}</ul>
             </div>
           </div>
@@ -143,6 +151,10 @@ function renderProcess() {
           <span>${String(index + 1).padStart(2, "0")}</span>
           <h3>${step.title}</h3>
           <p>${step.description}</p>
+          <div class="process-output">
+            <strong>산출물</strong>
+            <small>${step.output}</small>
+          </div>
         </article>
       `
     )
@@ -165,8 +177,24 @@ function renderWhy() {
 function renderContact() {
   qs("#contact-title").textContent = content.contact.title;
   qs("#contact-description").textContent = content.contact.description;
+  qs("#contact-microcopy").textContent = content.contact.microcopy;
+  qs("#contact-privacy").textContent = content.contact.privacy;
+  qs("#diagnostic-list").innerHTML = listMarkup(content.contact.diagnostics);
+  qs("#interest-select").innerHTML = content.contact.interests.map((item) => `<option>${item}</option>`).join("");
+  qs("#material-options").innerHTML = content.contact.materials
+    .map(
+      (item) => `
+        <label class="checkbox-item">
+          <input type="checkbox" name="materials" value="${item}" />
+          <span>${item}</span>
+        </label>
+      `
+    )
+    .join("");
   qs("#contact-email").textContent = content.company.email;
+  qs("#contact-email").setAttribute("href", `mailto:${content.company.email}`);
   qs("#footer-email").textContent = content.company.email;
+  qs("#footer-email").setAttribute("href", `mailto:${content.company.email}`);
   qs("#footer-year").textContent = new Date().getFullYear();
 
   const form = qs("#contact-form");
@@ -174,9 +202,23 @@ function renderContact() {
     event.preventDefault();
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
-    console.log("PETA inquiry", payload);
-    form.reset();
-    qs("#form-status").textContent = "문의 내용이 임시로 기록되었습니다. 실제 발송 기능은 연결 전입니다.";
+    payload.materials = formData.getAll("materials");
+    const subject = `[PETA 초기 진단 문의] ${payload.company || ""} ${payload.name || ""}`.trim();
+    const body = [
+      "PETA 초기 진단 문의",
+      "",
+      `이름: ${payload.name || ""}`,
+      `회사명: ${payload.company || ""}`,
+      `부서/직책: ${payload.role || ""}`,
+      `연락처 또는 이메일: ${payload.contact || ""}`,
+      `관심 분야: ${payload.interest || ""}`,
+      `보유 자료: ${payload.materials.length ? payload.materials.join(", ") : "없음/추후 확인"}`,
+      "",
+      "현재 반복되는 문제:",
+      payload.message || "",
+    ].join("\n");
+    window.location.href = `mailto:${content.company.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    qs("#form-status").textContent = `이메일 작성 창이 열립니다. 내용을 확인해 직접 발송하면 문의가 전달됩니다. 창이 열리지 않으면 ${content.company.email}로 보내주세요.`;
   });
 }
 

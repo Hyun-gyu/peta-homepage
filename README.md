@@ -10,10 +10,10 @@ Open `index.html` in a browser.
 
 This folder is ready for static hosting on Cloudflare Pages or GitHub Pages.
 
-Current SEO placeholder URL:
+Current production URL:
 
 ```txt
-https://peta-ai.pages.dev/
+https://peta-ai.com/
 ```
 
 If the deployed URL changes, update:

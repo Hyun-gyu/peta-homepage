@@ -1,0 +1,111 @@
+/* ------------------------------------------------------------------
+   v3 — quiet hero, dashboard relocated
+
+   The hero drops to a single text column. Instead of a photograph, the
+   background is line art in the same blueprint language the page already
+   uses: monochrome strokes, dimension arrows, no fill, no new colour.
+   A photo would fight the 44px grid and the warm off-white canvas.
+   ------------------------------------------------------------------ */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  display: block;
+  max-width: 1180px;
+  min-height: 0;
+}
+
+.hero-copy {
+  max-width: 760px;
+}
+
+.hero-copy h1 {
+  max-width: 760px;
+}
+
+.hero-subtitle {
+  max-width: 620px;
+}
+
+/* --- blueprint line art -------------------------------------------- */
+
+.hero-art {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  right: -40px;
+  width: min(720px, 52vw);
+  transform: translateY(-50%);
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.hero-art svg {
+  width: 100%;
+  height: auto;
+}
+
+.hero-art .art-part {
+  opacity: 0.14;
+}
+
+.hero-art .art-dim {
+  opacity: 0.11;
+}
+
+.hero-art .art-grid {
+  opacity: 0.08;
+}
+
+/* --- relocated dashboard -------------------------------------------- */
+
+.flow-section .flow-stage {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.flow-section .dashboard-card {
+  width: 100%;
+}
+
+/* the carousel controls sit inside the card; give them room at full width */
+.flow-section .carousel-controls {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1120px) {
+  .hero-art {
+    width: 62vw;
+    right: -90px;
+    opacity: 0.75;
+  }
+}
+
+@media (max-width: 820px) {
+  .hero {
+    padding-top: 64px;
+    padding-bottom: 72px;
+  }
+
+  .hero-art {
+    top: auto;
+    right: -70px;
+    bottom: -30px;
+    width: 96vw;
+    transform: none;
+    opacity: 0.6;
+  }
+
+  .hero-copy,
+  .hero-copy h1,
+  .hero-subtitle {
+    max-width: none;
+  }
+}

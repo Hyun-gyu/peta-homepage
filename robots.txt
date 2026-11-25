@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://peta-ai.pages.dev/sitemap.xml
+Sitemap: https://peta-ai.com/sitemap.xml
