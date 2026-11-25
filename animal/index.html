@@ -1,6 +1,16 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Google tag (gtag.js) -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  if (location.protocol !== 'file:') {
+    const s = document.createElement('script'); s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-7QLPHD4F6P'; document.head.appendChild(s);
+    gtag('js', new Date()); gtag('config', 'G-7QLPHD4F6P');
+  }
+</script>
 <title>Fauna AI · 사진 한 장으로 만드는 3D 동물</title>
 <meta name="description" content="어떤 네발 동물이든 사진 한 장을 리그와 텍스처를 갖춘 3D 에셋으로 복원합니다. VR, AR, 메타버스에 바로 올릴 수 있습니다.">
 <link rel="canonical" href="https://peta-ai.com/animal/">
@@ -434,11 +444,24 @@ footer { padding-block: 28px 44px; border-top: 1px solid var(--line); display: f
   // endpoints that answer JSON. Leave empty and the form says sign-ups are not open yet.
   const WAITLIST_ENDPOINT = '';
 
+  // Usage events go to the analytics tag when the page has one (window.gtag); otherwise nothing is sent.
+  const track = (name, params) => { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); };
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('.tile[data-case], .card, .chip, #seg button, a[href="#access"]');
+    if (!el || el.disabled) return;
+    if (el.matches('.tile[data-case]')) track('select_animal', { animal: el.dataset.case, source: 'photo' });
+    else if (el.matches('.card')) track('select_animal', { animal: el.dataset.case, source: 'gallery' });
+    else if (el.matches('.chip')) track('select_motion', { motion: el.dataset.motion });
+    else if (el.matches('#seg button')) track('select_view', { view: el.dataset.view });
+    else track('cta_click', { place: el.classList.contains('cta') ? 'header' : 'photo_grid' });
+  });
+
   const form = document.getElementById('waitlist'), email = document.getElementById('email');
   const submit = document.getElementById('submit'), formMsg = document.getElementById('formMsg');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!email.validity.valid) { formMsg.textContent = '메일 주소를 확인해 주세요. 예: you@example.com'; email.focus(); return; }
+    track('waitlist_attempt', { open: !!WAITLIST_ENDPOINT });
     if (!WAITLIST_ENDPOINT) { formMsg.textContent = '아직 신청을 받고 있지 않습니다. 곧 열립니다.'; return; }
     submit.disabled = true; formMsg.textContent = '보내는 중…';
     try {
@@ -446,6 +469,7 @@ footer { padding-block: 28px 44px; border-top: 1px solid var(--line); display: f
       if (!res.ok) throw new Error(res.status);
       formMsg.textContent = `신청되었습니다. 준비되면 ${email.value}(으)로 알려 드리겠습니다.`;
       form.reset();
+      track('generate_lead', { method: 'waitlist' });
     } catch {
       formMsg.textContent = '신청을 보내지 못했습니다. 잠시 후 다시 눌러 주세요.';
     }
